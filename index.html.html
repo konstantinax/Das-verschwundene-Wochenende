@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DAS VERSCHWUNDENE WOCHENENDE – Escape Room</title>
+<style>
+:root{
+  --bg:#07131f;--panel:#0d2230;--panel2:#102d38;--teal:#1d7f85;--orange:#ff8a2a;
+  --text:#edf7f8;--muted:#9fb6bd;--good:#4bd18b;--bad:#ff6270;--line:#214552;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:
+radial-gradient(circle at top right,#123b46 0,#07131f 40%,#050b12 100%);color:var(--text);min-height:100vh}
+button,input{font:inherit}
+.hidden{display:none!important}
+.app{max-width:1180px;margin:auto;min-height:100vh;padding:20px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;position:sticky;top:0;
+background:rgba(5,11,18,.86);backdrop-filter:blur(12px);z-index:20;padding:12px 0;border-bottom:1px solid var(--line)}
+.brand{font-weight:800;letter-spacing:.05em}.progress-wrap{flex:1;max-width:520px}
+.progress-label{font-size:.85rem;color:var(--muted);margin-bottom:5px}
+.progress{height:8px;background:#16303b;border-radius:20px;overflow:hidden}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--teal),var(--orange));transition:.4s}
+.badge{border:1px solid #2d5561;background:#0d2530;padding:8px 12px;border-radius:999px;font-size:.85rem}
+.hero{min-height:74vh;display:grid;place-items:center;text-align:center;padding:50px 15px}
+.hero-card{max-width:850px;background:linear-gradient(180deg,rgba(16,45,56,.82),rgba(7,19,31,.92));
+border:1px solid #2a5160;border-radius:24px;padding:45px;box-shadow:0 25px 80px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.hero-card:before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:#ff8a2a22;
+filter:blur(30px);right:-80px;top:-80px}
+h1{font-size:clamp(2rem,5vw,4.4rem);line-height:1;margin:0 0 16px}
+.subtitle{color:#b9d5db;font-size:1.15rem}
+.timer{font-size:2rem;font-weight:800;color:var(--orange);margin:18px 0}
+.btn{border:0;background:linear-gradient(90deg,var(--teal),#256a7d);color:white;padding:13px 20px;border-radius:12px;
+cursor:pointer;font-weight:700;box-shadow:0 8px 24px #0006;transition:.2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.alt{background:#16313d;border:1px solid #2b5966}.btn.orange{background:linear-gradient(90deg,#d76c17,var(--orange))}
+.screen{display:none;animation:fade .45s ease}.screen.active{display:block}
+@keyframes fade{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:none}}
+.room-head{padding:34px 0 18px}.room-kicker{color:var(--orange);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.room-title{font-size:clamp(1.8rem,4vw,3rem);margin:6px 0}.room-intro{color:#b8ced3;max-width:800px}
+.scene{background:linear-gradient(145deg,#0b1c29,#12303a);border:1px solid #234a57;border-radius:22px;padding:25px;
+box-shadow:0 25px 60px #0005;margin:18px 0;position:relative;overflow:hidden}
+.scene:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,transparent 60%,#ff8a2a0b)}
+.grid{display:grid;gap:14px}.grid-3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.card{background:#0a1a25;border:1px solid #244957;border-radius:16px;padding:18px}
+.object{cursor:pointer;min-height:115px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+transition:.2s;position:relative}.object:hover{border-color:#3c7784;transform:translateY(-2px)}
+.object .ico{font-size:2rem}.object.selected{outline:2px solid var(--orange)}
+.object.good{border-color:var(--good)} .object.bad{animation:shake .25s}
+@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+.feedback{min-height:28px;margin:12px 0;font-weight:700}.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}
+.clue{border-left:4px solid var(--orange);background:#0b202b;padding:14px 16px;border-radius:8px;margin:14px 0}
+.phone{max-width:420px;margin:auto;background:#02070b;border:8px solid #111923;border-radius:34px;padding:16px;
+box-shadow:0 30px 70px #000a}.phone-head{text-align:center;color:#9db2b7;margin-bottom:12px}
+.app-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.app-icon{background:#122a36;padding:12px;border-radius:13px;text-align:center;cursor:pointer;border:1px solid #244955}
+.note{background:#0e2430;border-radius:12px;padding:12px;margin:8px 0;border-left:3px solid #2a7c88}
+.choice{display:block;width:100%;text-align:left;margin:8px 0;background:#0b1e29;color:white;border:1px solid #2a4e5a;
+padding:12px 14px;border-radius:10px;cursor:pointer}.choice.active{border-color:var(--orange);background:#18333d}
+.timetable{overflow:auto}.timetable table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:13px;border:1px solid #244652;text-align:left}th{background:#0b1b25;color:#ffb46f}
+.puzzle-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:760px){.puzzle-row{grid-template-columns:1fr}.hero-card{padding:28px 20px}.app{padding:12px}.topbar{flex-wrap:wrap}.progress-wrap{order:3;flex-basis:100%}}
+.word{letter-spacing:.25em;font-size:1.8rem;font-weight:900;color:#ffb46f;text-align:center;margin:18px}
+.profile{max-width:620px;margin:auto}.profile-avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#394f5a,#172934);
+display:grid;place-items:center;font-size:2.8rem;margin:0 auto 16px;border:2px solid #ff8a2a}
+.fillrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.fillrow button{flex:1;min-width:100px}
+.code-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.code-item{padding:14px;border:1px solid #2b4d58;border-radius:12px;background:#0b1c26;text-align:center}
+.code-input{display:flex;gap:10px;justify-content:center;margin:18px}.code-input input{width:70px;text-align:center;background:#091821;color:white;border:1px solid #34616d;
+border-radius:10px;padding:12px;font-size:1.3rem}
+.final-panel{text-align:center;max-width:780px;margin:auto}.lock{font-size:5rem;filter:drop-shadow(0 0 18px #ff8a2a55)}
+.inventory{display:flex;gap:8px;flex-wrap:wrap}.inv{padding:7px 10px;border-radius:8px;background:#102b35;border:1px solid #2b5662;color:#c9e1e5;font-size:.83rem}
+.character-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.character{background:#0b1d27;border:1px solid #234957;padding:12px;border-radius:12px;text-align:center}.character b{display:block;color:#ffb46f}
+.ending{font-size:1.2rem;line-height:1.7}
+.small{font-size:.9rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">DAS VERSCHWUNDENE WOCHENENDE</div>
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressLabel">Start</div>
+      <div class="progress"><div id="progressBar" style="width:0%"></div></div>
+    </div>
+    <div class="badge">⏱ <span id="time">45:00</span></div>
+  </div>
+
+  <section id="start" class="screen active hero">
+    <div class="hero-card">
+      <div class="room-kicker">Ein Escape Room rund um Hobbys</div>
+      <h1>DAS VERSCHWUNDENE WOCHENENDE</h1>
+      <p class="subtitle">Carmen, Maria Christina und Andreas wollten sich am Samstag treffen. Doch plötzlich ist ihr gemeinsamer Freizeitplan verschwunden.</p>
+      <div class="clue"><b>„Euer Wochenende wurde gelöscht. Findet heraus, was ihr wirklich gern macht. Ihr habt 45 Minuten.“</b></div>
+      <div class="character-strip">
+        <div class="character">🎧📷<b>Carmen</b>Musik · Tanzen · Fotos</div>
+        <div class="character">🎬📚<b>Maria Christina</b>Lesen · Kino · Malen</div>
+        <div class="character">⚽🎮<b>Andreas</b>Fußball · Games · Musik</div>
+      </div>
+      <button class="btn orange" onclick="startGame()">Mission starten</button>
+    </div>
+  </section>
+
+  <section id="room1" class="screen">
+    <div class="room-head"><div class="room-kicker">Raum 1 / 6</div><div class="room-title">DAS VERLASSENE JUGENDZENTRUM</div>
+    <p class="room-intro">Finde die Gegenstände, die zu den Hobbys passen. Einige Dinge sind nur Ablenkung.</p></div>
+    <div class="scene">
+      <div class="grid grid-3" id="objects1"></div>
+      <div id="fb1" class="feedback"></div>
+      <button class="btn" onclick="checkRoom1()">Hinweise prüfen</button>
+    </div>
+  </section>
+
+  <section id="room2" class="screen">
+    <div class="room-head"><div class="room-kicker">Raum 2 / 6</div><div class="room-title">DAS HANDY VON CARMEN</div>
+    <p class="room-intro">Durchsuche Carmens Handy. Welche drei Hobbys macht sie wirklich gern?</p></div>
+    <div class="scene">
+      <div class="phone">
+        <div class="phone-head">CARMEN • 18:42</div>
+        <div class="app-icons">
+          <div class="app-icon" onclick="phoneApp('chat')">💬<br>Chat</div>
+          <div class="app-icon" onclick="phoneApp('photos')">📷<br>Fotos</div>
+          <div class="app-icon" onclick="phoneApp('music')">🎵<br>Playlist</div>
+        </div>
+        <div id="phoneContent" class="note">Tippe auf eine App und suche nach Hinweisen.</div>
+        <hr style="border-color:#1e3f49">
+        <b>Was macht Carmen gern? Wähle 3.</b>
+        <div id="carmenChoices"></div>
+        <div id="fb2" class="feedback"></div>
+        <button class="btn" onclick="checkRoom2()">Entschlüsseln</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="room3" class="screen">
+    <div class="room-head"><div class="room-kicker">Raum 3 / 6</div><div class="room-title">DER FREIZEITPLAN</div>
+    <p class="room-intro">Lies den Plan. Löse die Fragen. Jede richtige Antwort aktiviert einen Buchstaben.</p></div>
+    <div class="scene timetable">
+      <table>
+        <tr><th>Person</th><th>Freitag</th><th>Samstag</th><th>Sonntag</th></tr>
+        <tr><td>Carmen</td><td>Tanzkurs</td><td>Fotografieren</td><td>Musik hören</td></tr>
+        <tr><td>Maria Christina</td><td>Lesen</td><td>Kino</td><td>Malen</td></tr>
+        <tr><td>Andreas</td><td>Fußballtraining</td><td>Computerspiele</td><td>Gitarre spielen</td></tr>
+      </table>
+      <div id="r3questions"></div>
+      <div id="keyWord" class="word">_ _ _ _ _</div>
+      <div id="fb3" class="feedback"></div>
+      <button class="btn" onclick="checkRoom3()">Wort prüfen</button>
+    </div>
+  </section>
+
+  <section id="room4" class="screen">
+    <div class="room-head"><div class="room-kicker">Raum 4 / 6</div><div class="room-title">DAS GEHEIME PROFIL</div>
+    <p class="room-intro">Wer steckt hinter diesem anonymen Profil? Danach öffnet nur die richtige Grammatik die Tür.</p></div>
+    <div class="scene profile">
+      <div class="profile-avatar">?</div>
+      <div class="note">„Ich bin 15 Jahre alt. Ich spiele zweimal pro Woche Fußball. Ich spiele gern Computerspiele. Musik finde ich super. Ich lese nicht so gern. Am Samstag treffe ich oft meine Freunde.“</div>
+      <b>Wer ist das?</b>
+      <div class="fillrow">
+        <button class="choice" onclick="guessProfile(this,'Carmen')">Carmen</button>
+        <button class="choice" onclick="guessProfile(this,'Maria Christina')">Maria Christina</button>
+        <button class="choice" onclick="guessProfile(this,'Andreas')">Andreas</button>
+      </div>
+      <div id="grammarStage" class="hidden">
+        <hr style="border-color:#244652"><h3>Türmechanismus</h3>
+        <div id="grammarQ"></div>
+        <div id="fb4" class="feedback"></div>
+        <button class="btn" onclick="checkRoom4()">Tür öffnen</button>
+      </div>
+      <div id="profileFb" class="feedback"></div>
+    </div>
+  </section>
+
+  <section id="room5" class="screen">
+    <div class="room-head"><div class="room-kicker">Raum 5 / 6</div><div class="room-title">DIE HOBBY-CODES</div>
+    <p class="room-intro">Übersetze die Hinweise in Hobbys und dann in Zahlen.</p></div>
+    <div class="scene">
+      <div class="code-map">
+        <div class="code-item">🎸<br>Gitarre spielen<br><b>= 4</b></div>
+        <div class="code-item">📷<br>fotografieren<br><b>= 7</b></div>
+        <div class="code-item">⚽<br>Fußball spielen<br><b>= 2</b></div>
+        <div class="code-item">📚<br>lesen<br><b>= 9</b></div>
+        <div class="code-item">🎮<br>Computerspiele spielen<br><b>= 5</b></div>
+      </div>
+      <div class="puzzle-row">
+        <div class="card">1. „Carmen macht dieses Hobby gern. Man braucht eine Kamera.“</div>
+        <div class="card">2. „Andreas macht dieses Hobby mit einem Ball.“</div>
+        <div class="card">3. „Maria Christina macht dieses Hobby oft mit einem Buch.“</div>
+      </div>
+      <div class="code-input">
+        <input maxlength="1" id="c1"><input maxlength="1" id="c2"><input maxlength="1" id="c3">
+      </div>
+      <div id="fb5" class="feedback"></div>
+      <button class="btn" onclick="checkRoom5()">Code testen</button>
+    </div>
+  </section>
+
+  <section id="room6" class="screen">
+    <div class="room-head"><div class="room-kicker">Final Room / 6</div><div class="room-title">DAS VERSCHWUNDENE WOCHENENDE</div>
+    <p class="room-intro">Alle Hinweise führen hierher. Löse die letzte Kombination und stelle den Freizeitplan wieder her.</p></div>
+    <div class="scene final-panel">
+      <div class="lock">🔒</div>
+      <div class="inventory" id="inventory"></div>
+      <div class="clue" style="text-align:left">
+        <b>Finale Hinweise:</b><br>
+        1. Carmen ______ am Samstag gern. (fotografieren)<br>
+        2. Maria Christina geht ______ ins Kino als zum Fußball.<br>
+        3. Andreas spielt am Sonntag ______.<br>
+        4. Wer hört am Sonntag Musik? ______<br>
+        5. Setze die drei Zahlen aus Raum 5 zusammen.
+      </div>
+      <div id="finalQs"></div>
+      <div id="fb6" class="feedback"></div>
+      <button class="btn orange" onclick="checkFinal()">Wochenende wiederherstellen</button>
+    </div>
+  </section>
+
+  <section id="end" class="screen hero">
+    <div class="hero-card ending">
+      <div class="room-kicker">Mission erfolgreich</div>
+      <h1>GESCHAFFT!</h1>
+      <p><b>Das Wochenende ist gerettet.</b></p>
+      <div class="character-strip">
+        <div class="character"><b>Carmen</b>„Ich möchte tanzen und fotografieren.“</div>
+        <div class="character"><b>Maria Christina</b>„Ich möchte ins Kino gehen.“</div>
+        <div class="character"><b>Andreas</b>„Und danach können wir zusammen Musik hören.“</div>
+      </div>
+      <div class="clue">„Manchmal sind unsere Hobbys verschieden. Aber Freizeit macht zusammen mehr Spaß.“</div>
+      <button class="btn alt" onclick="location.reload()">Neu starten</button>
+    </div>
+  </section>
+</div>
+
+<script>
+let room=0, timer=null, seconds=45*60, clues=[];
+const setFb=(id,msg,good=false)=>{let e=document.getElementById(id);e.textContent=msg;e.className='feedback '+(good?'good':'bad')}
+function show(id,n){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active'); room=n;
+  const p=n===0?0:Math.round(n/6*100);
+  document.getElementById('progressBar').style.width=p+'%';
+  document.getElementById('progressLabel').textContent=n?`Raum ${n} / 6`:'Start';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function startGame(){show('room1',1);initR1();timer=setInterval(()=>{seconds--;let m=Math.floor(seconds/60),s=seconds%60;document.getElementById('time').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(seconds<=0){clearInterval(timer);alert('Die 45 Minuten sind vorbei. Ihr könnt trotzdem weiterspielen!')}},1000)}
+const objs=[
+['🎸','Gitarre','Gitarre spielen',1],['🛹','Skateboard','Skateboard fahren',1],['📷','Kamera','fotografieren',1],
+['⚽','Fußball','Fußball spielen',1],['📚','Bücher','lesen',1],['🎮','Konsole','Computerspiele spielen',1],
+['🧹','Besen','putzen',0],['🍳','Pfanne','kochen',0],['🔧','Werkzeug','reparieren',0]
+];
+function initR1(){
+ let box=document.getElementById('objects1');if(box.children.length)return;
+ objs.forEach((o,i)=>{let d=document.createElement('div');d.className='card object';d.dataset.good=o[3];d.innerHTML=`<div class="ico">${o[0]}</div><b>${o[1]}</b><span class="small">${o[2]}</span>`;d.onclick=()=>d.classList.toggle('selected');box.appendChild(d)})
+}
+function checkRoom1(){
+ let sel=[...document.querySelectorAll('#objects1 .selected')],good=sel.filter(x=>x.dataset.good==='1');
+ if(sel.length===6&&good.length===6){setFb('fb1','Richtig! Du hast einen neuen Hinweis gefunden: ◆ 6',true);clues[0]='◆6';setTimeout(()=>{show('room2',2);initR2()},900)}
+ else{sel.forEach(x=>{if(x.dataset.good==='0')x.classList.add('bad')});setFb('fb1','Noch nicht. Schau genauer hin: Welche Dinge passen wirklich zu Freizeit-Hobbys?')}
+}
+let carmenSet=new Set();
+function initR2(){
+ const opts=['tanzen','fotografieren','Musik hören','Fußball spielen','lesen'];
+ let c=document.getElementById('carmenChoices');if(c.children.length)return;
+ opts.forEach(o=>{let b=document.createElement('button');b.className='choice';b.textContent=o;b.onclick=()=>{b.classList.toggle('active');b.classList.contains('active')?carmenSet.add(o):carmenSet.delete(o)};c.appendChild(b)})
+}
+function phoneApp(a){
+ let t={chat:'💬 „Ich tanze sehr gern.“ · „Fußball finde ich langweilig.“',photos:'📷 Album: Street Photography · Samstag 14:30',music:'🎵 Playlist: Weekend Beats · „Am Wochenende höre ich oft Musik.“'};
+ document.getElementById('phoneContent').textContent=t[a]
+}
+function checkRoom2(){
+ let ok=['tanzen','fotografieren','Musik hören'].every(x=>carmenSet.has(x))&&carmenSet.size===3;
+ if(ok){setFb('fb2','Sehr gut! Der zweite Code ist: ✦ C',true);clues[1]='✦C';setTimeout(()=>{show('room3',3);initR3()},900)}
+ else setFb('fb2','Fast! Versuch es noch einmal. Nutze Chat, Fotos und Playlist.')
+}
+const r3=[
+['Wer spielt am Freitag Fußball?',['Carmen','Maria Christina','Andreas'],'Andreas','F'],
+['Wann geht Maria Christina ins Kino?',['Freitag','Samstag','Sonntag'],'Samstag','R'],
+['Wer hört am Sonntag Musik?',['Carmen','Maria Christina','Andreas'],'Carmen','E'],
+['Was macht Carmen am Samstag?',['fotografieren','lesen','Fußball spielen'],'fotografieren','I'],
+['Was macht Maria Christina am Sonntag?',['malen','tanzen','Gitarre spielen'],'malen','E']
+];
+let r3answers={};
+function initR3(){
+ let box=document.getElementById('r3questions');if(box.children.length)return;
+ r3.forEach((q,qi)=>{let c=document.createElement('div');c.className='card';c.innerHTML=`<b>${qi+1}. ${q[0]}</b>`;q[1].forEach(op=>{let b=document.createElement('button');b.className='choice';b.textContent=op;b.onclick=()=>{[...c.querySelectorAll('.choice')].forEach(x=>x.classList.remove('active'));b.classList.add('active');r3answers[qi]=op;updateWord()};c.appendChild(b)});box.appendChild(c)})
+}
+function updateWord(){
+ let letters=r3.map((q,i)=>r3answers[i]===q[2]?q[3]:'_');document.getElementById('keyWord').textContent=letters.join(' ')
+}
+function checkRoom3(){
+ if(r3.every((q,i)=>r3answers[i]===q[2])){setFb('fb3','Richtig! Das Schlüsselwort ist FREIE. Hinweis: ▲ FREIE',true);clues[2]='▲FREIE';setTimeout(()=>show('room4',4),900)}
+ else setFb('fb3','Noch nicht. Lies den Freizeitplan noch einmal.')
+}
+function guessProfile(el,name){
+ document.querySelectorAll('#room4 .fillrow .choice').forEach(x=>x.classList.remove('active'));el.classList.add('active');
+ if(name==='Andreas'){document.getElementById('profileFb').textContent='Richtig! Andreas. Jetzt öffne den Türmechanismus.';document.getElementById('profileFb').className='feedback good';document.getElementById('grammarStage').classList.remove('hidden');initGrammar()}
+ else setFb('profileFb','Noch nicht. Welche Person spielt Fußball und Computerspiele?')
+}
+let grammarAns={};
+function initGrammar(){
+ let data=[
+ ['Andreas ______ gern Fußball.',['spielt','macht','geht'],'spielt'],
+ ['Maria Christina ______ gern.',['liest','spielt','fährt'],'liest'],
+ ['Carmen ______ gern Musik.',['hört','liest','fährt'],'hört']
+ ];let box=document.getElementById('grammarQ');if(box.children.length)return;
+ data.forEach((q,i)=>{let c=document.createElement('div');c.className='card';c.innerHTML=`<b>${q[0]}</b>`;q[1].forEach(op=>{let b=document.createElement('button');b.className='choice';b.textContent=op;b.onclick=()=>{[...c.querySelectorAll('.choice')].forEach(x=>x.classList.remove('active'));b.classList.add('active');grammarAns[i]=op};c.appendChild(b)});c.dataset.correct=q[2];box.appendChild(c)})
+}
+function checkRoom4(){
+ let cards=[...document.querySelectorAll('#grammarQ .card')];let ok=cards.every((c,i)=>grammarAns[i]===c.dataset.correct);
+ if(ok){setFb('fb4','Sehr gut! Die Tür ist offen. Hinweis: ● 3',true);clues[3]='●3';setTimeout(()=>show('room5',5),900)}
+ else setFb('fb4','Fast! Denk an die festen Verbindungen: Fußball spielen, lesen, Musik hören.')
+}
+function checkRoom5(){
+ const vals=[
+   document.getElementById('c1').value.trim(),
+   document.getElementById('c2').value.trim(),
+   document.getElementById('c3').value.trim()
+ ];
+ if(vals.join('')==='729'){
+   setFb('fb5','Code 729 akzeptiert! Letzter Hinweis: 729',true);
+   clues[4]='729';
+   setTimeout(()=>{
+     show('room6',6);
+     initFinal();
+   },900);
+ } else {
+   setFb('fb5','Noch nicht. Erst Hobby erkennen, dann Zahl ablesen.');
+ }
+}
+let finalAns={};
+function initFinal(){
+ document.getElementById('inventory').innerHTML=clues.map(x=>`<span class="inv">${x}</span>`).join('');
+ const qs=[
+  ['Carmen ______ am Samstag gern.',['fotografiert','fotografieren','fotografiere'],'fotografiert'],
+  ['Maria Christina geht ______ ins Kino als zum Fußball.',['lieber','gern','am liebsten'],'lieber'],
+  ['Andreas spielt am Sonntag ______.',['Gitarre','Fußball','Computer'],'Gitarre'],
+  ['Wer hört am Sonntag Musik?',['Carmen','Maria Christina','Andreas'],'Carmen']
+ ];
+ let box=document.getElementById('finalQs');if(box.children.length)return;
+ qs.forEach((q,i)=>{let c=document.createElement('div');c.className='card';c.innerHTML=`<b>${i+1}. ${q[0]}</b>`;q[1].forEach(op=>{let b=document.createElement('button');b.className='choice';b.textContent=op;b.onclick=()=>{[...c.querySelectorAll('.choice')].forEach(x=>x.classList.remove('active'));b.classList.add('active');finalAns[i]=op};c.appendChild(b)});box.appendChild(c)});
+ let c=document.createElement('div');c.className='card';c.innerHTML='<b>5. Dreistelliger Code aus Raum 5</b><input id="finalCode" style="width:100%;margin-top:10px;padding:12px;border-radius:10px;border:1px solid #34616d;background:#091821;color:#fff" placeholder="___">';box.appendChild(c)
+}
+function checkFinal(){
+ const codeEl=document.getElementById('finalCode');
+ const good=
+   finalAns[0]==='fotografiert' &&
+   finalAns[1]==='lieber' &&
+   finalAns[2]==='Gitarre' &&
+   finalAns[3]==='Carmen' &&
+   codeEl && codeEl.value.trim()==='729';
+
+ if(good){
+   setFb('fb6','Zugriff erlaubt. Der Wochenendplan wird wiederhergestellt …',true);
+   if(timer) clearInterval(timer);
+
+   setTimeout(()=>{
+     document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+     const end=document.getElementById('end');
+     end.classList.add('active');
+     end.style.display='grid';
+     document.getElementById('progressBar').style.width='100%';
+     document.getElementById('progressLabel').textContent='Mission geschafft';
+     window.scrollTo({top:0,behavior:'smooth'});
+   },900);
+ } else {
+   setFb('fb6','Fast! Versuch es noch einmal. Kontrolliere alle fünf Antworten.');
+ }
+}
+</script>
+</body>
+</html>
